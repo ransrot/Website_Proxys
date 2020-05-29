@@ -32,10 +32,9 @@ class Proxy:
 		get_len_page = get_len_page.text
 		get_len_page = int(get_len_page)
 
-
 		while True:
 		
-			submit_button = driver.find_elements_by_id('btn2')[0].click()
+			submit_button = driver.find_elements_by_id('btn2')[0]
 			element_count += 1
 			get_contents = driver.page_source
 			soup = BeautifulSoup(get_contents, features='lxml')
@@ -53,15 +52,17 @@ class Proxy:
 				if count == 4:
 					proxy_dict[proxy_list[0]] = proxy_list[1:]
 					count = 0
-					proxy_list.clear()	
+					proxy_list.clear()
+			submit_button.click()	
 
 		driver.close()
 		return proxy_dict
 
 	def parse_content(self):
 		get_content = self.request_url()
-
-		print(get_content)
+		random_ip = random.choice(list(get_content.keys()))
+		print(f"[+] Random ip: {random_ip}")
+		print(f"[*] Dict: {get_content[random_ip]}")
 
 
 
