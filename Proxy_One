@@ -1,0 +1,71 @@
+from bs4 import BeautifulSoup
+import tkinter
+import time
+import requests
+import random
+import socks
+from multiprocessing import Process
+import logging
+from selenium import webdriver
+from selenium.webdriver.firefox.options import Options
+
+
+class Proxy:
+	def __init__(self):
+		self.url = "https://www.proxy-list.download/SOCKS5"
+
+	def request_url(self):
+		count = 0
+		element_count = 0
+		proxy_list = []
+		proxy_dict = {}
+		print("[*] Getting Proxies...")
+
+		make_headless = Options()
+		make_headless.headless = True
+		make_headless.add_argument("--no-sandbox")
+
+		driver = webdriver.Firefox(options=make_headless, executable_path="/usr/local/share/WebDriverManager/gecko/v0.26.0/geckodriver-v0.26.0-linux64/geckodriver")
+		driver.set_page_load_timeout(10)
+		driver.get(self.url)
+		get_len_page = driver.find_elements_by_id("totalpg")[0]
+		get_len_page = get_len_page.text
+		get_len_page = int(get_len_page)
+
+
+		while True:
+		
+			submit_button = driver.find_elements_by_id('btn2')[0].click()
+			element_count += 1
+			get_contents = driver.page_source
+			soup = BeautifulSoup(get_contents, features='lxml')
+			tbody_tag = soup.find("tbody", attrs={"class": "table-hover"})
+			rows = tbody_tag.find_all("td")
+
+			if element_count > get_len_page:
+				print("[*] End")
+				break
+
+			for letters in rows:
+				count += 1
+				proxy_list.append(letters.text)
+
+				if count == 4:
+					proxy_dict[proxy_list[0]] = proxy_list[1:]
+					count = 0
+					proxy_list.clear()	
+
+		driver.close()
+		return proxy_dict
+
+	def parse_content(self):
+		get_content = self.request_url()
+
+		print(get_content)
+
+
+
+if __name__ == '__main__':
+	Proxy().parse_content()
+
+
