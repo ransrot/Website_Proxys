@@ -9,10 +9,9 @@ import logging
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
-
 class Proxy:
 	def __init__(self):
-		self.url = "https://www.proxy-list.download/SOCKS5"
+		self.url = "https://www.proxy-list.download/SOCKS4"
 
 	def request_url(self):
 		count = 0
@@ -33,7 +32,7 @@ class Proxy:
 		get_len_page = int(get_len_page)
 
 		while True:
-		
+			
 			submit_button = driver.find_elements_by_id('btn2')[0]
 			element_count += 1
 			get_contents = driver.page_source
@@ -53,20 +52,21 @@ class Proxy:
 					proxy_dict[proxy_list[0]] = proxy_list[1:]
 					count = 0
 					proxy_list.clear()
-			submit_button.click()	
+			driver.execute_script("arguments[0].click();", submit_button)	
 
 		driver.close()
 		return proxy_dict
 
 	def parse_content(self):
 		get_content = self.request_url()
-		random_ip = random.choice(list(get_content.keys()))
-		print(f"[+] Random ip: {random_ip}")
-		print(f"[*] Dict: {get_content[random_ip]}")
+		print(get_content)
+		#random_ip = random.choice(list(get_content.keys()))
+		
 
-
+	def make_button(self):
+		root = tkinter.Tk()
+		root.geometry('500x100')
+		count = 0
 
 if __name__ == '__main__':
 	Proxy().parse_content()
-
-
