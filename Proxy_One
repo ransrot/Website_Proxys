@@ -6,10 +6,13 @@ from multiprocessing import Process
 import logging
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
+import tkinter
+from fake_useragent import UserAgent
 
 class Proxy:
-	def __init__(self, proxy_type=None):
+	def __init__(self, proxy_type=None, user_agent=False):
 		self.proxy_type = proxy_type
+		self.user_agent = user_agent
 		self.url = "https://www.proxy-list.download/SOCKS5"
 		self.proxy_value = "network.proxy.socks"
 		self.proxy_value_port = "network.proxy.socks_port"
@@ -78,6 +81,12 @@ class Proxy:
 	def set_proxy_preference(self, proxy_ip, proxy_port):
 		print("[*] Opening browser")
 		fp = webdriver.FirefoxProfile()
+
+		if self.user_agent:
+			print("[*] Changing user agent")
+			fake_agent = UserAgent()
+			fp.set_preference("general.useragent.override", fake_agent.random)
+
 		fp.set_preference("network.proxy.type", 1)
 		fp.set_preference(self.proxy_value, proxy_ip)
 		fp.set_preference(self.proxy_value_port, proxy_port)
@@ -91,12 +100,12 @@ class Proxy:
 
 	def user_proxy(self, ip, port):
 		port = int(port)
-		print(f"Connecting to {ip}: {port}")
+		print(f"[*] Connecting to {ip}: {port}")
 		return self.set_proxy_preference(ip, port)
 
 if __name__ == '__main__':
 	try:
-		Proxy().random_proxy_browser_open()
+		Proxy(user_agent=True).user_proxy("108.61.219.140", 1080)
 	except KeyboardInterrupt:
 		print("[*] Exiting")
 		exit()
