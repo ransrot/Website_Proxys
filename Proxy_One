@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
-import time
 import random
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from fake_useragent import UserAgent
 import argparse
+import sys
 
 class Parser:
 	def __init__(self):
@@ -122,8 +122,15 @@ def url_types(url_type):
 	return f"https://www.proxy-list.download/{url_type}"
 
 if __name__ == '__main__':
-	url = Parser().return_url_type()
-	get_url = url_types(url)
+	get_index = None
+	try:
+		get_index = sys.argv[1]
+	except IndexError:
+		pass
+	
+	if get_index:
+		url = Parser().return_url_type()
+		get_url = url_types(url)
 
 	try:
 		Proxy(user_agent=True).user_proxy("108.61.219.140", 1080)
