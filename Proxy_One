@@ -8,8 +8,24 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 
 class Proxy:
-	def __init__(self):
+	def __init__(self, proxy_type=None):
+		self.proxy_type = proxy_type
 		self.url = "https://www.proxy-list.download/SOCKS5"
+		self.proxy_value = "network.proxy.socks"
+		self.proxy_value_port = "network.proxy.socks_port"
+
+		if self.proxy_type:
+			if self.proxy_type == "HTTP":
+				self.proxy_value = "network.proxy.http"
+				self.proxy_value_port = "network.proxy.http_port"
+
+			elif self.proxy_type == "HTTPS":
+				self.proxy_value = "network.proxy.https"
+				self.proxy_value_port = "network.proxy.https_port"
+			
+			else:
+				print("[-] Invalid Proxy type exiting.")
+				exit()
 
 	def request_url(self):
 		count = 0
@@ -59,26 +75,28 @@ class Proxy:
 		get_content = self.request_url()
 		return get_content, random.choice(list(get_content.keys()))
 
-	def set_proxy_preference(self, proxy_ip_type, proxy_port_type, proxy_ip, proxy_port):
+	def set_proxy_preference(self, proxy_ip, proxy_port):
 		print("[*] Opening browser")
 		fp = webdriver.FirefoxProfile()
 		fp.set_preference("network.proxy.type", 1)
-		fp.set_preference(proxy_ip_type, proxy_ip)
-		fp.set_preference(proxy_port_type, int(proxy_port))
+		fp.set_preference(self.proxy_value, proxy_ip)
+		fp.set_preference(self.proxy_value_port, proxy_port)
 		fp.update_preferences()
 		return webdriver.Firefox(firefox_profile=fp, executable_path="/usr/local/share/WebDriverManager/gecko/v0.26.0/geckodriver-v0.26.0-linux64/geckodriver")
 
-	def browser_open(self, proxy_type=None):  # defaults to SOCKS proxy
-		PROXY_TYPE = proxy_type
-		proxy_value = "network.proxy.socks"
-		proxy_value_port = "network.proxy.socks_port"
+	def random_proxy_browser_open(self):  # defaults to SOCKS proxy
 		proxy_dict, proxy_ip = self.get_random_ip()
-		print(f"[*] Connected to : {proxy_ip} : {proxy_dict[proxy_ip][2]}")
+		print(f"[*] Connected to : {proxy_ip} : {proxy_dict[proxy_ip][2]} : {proxy_dict[proxy_ip][0]}")
+		return self.set_proxy_preference(proxy_ip, int(proxy_dict[proxy_ip][0]))
 
-		fp = webdriver.FirefoxProfile()
-
-		if not PROXY_TYPE:
-			self.set_proxy_preference(proxy_value, proxy_value_port, proxy_ip, int(proxy_dict[proxy_ip][0]))
+	def user_proxy(self, ip, port):
+		port = int(port)
+		print(f"Connecting to {ip}: {port}")
+		return self.set_proxy_preference(ip, port)
 
 if __name__ == '__main__':
-	Proxy().browser_open()
+	try:
+		Proxy().random_proxy_browser_open()
+	except KeyboardInterrupt:
+		print("[*] Exiting")
+		exit()
