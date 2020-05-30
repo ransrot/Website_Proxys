@@ -8,12 +8,31 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 import tkinter
 from fake_useragent import UserAgent
+import argparse
+
+class Parser:
+	def __init__(self):
+		self.args = argparse.ArgumentParser()
+		self.args.add_argument("--url", help="Select the URL type you want. SOCKS4, SOCKS5, HTTP, HTTPS", type=self.validate_url_type)
+
+		self.args_parsed = self.args.parse_args()
+
+	def return_url_type(self):
+		return self.args_parsed.url
+
+	def validate_url_type(self, url_type):
+		valid_url = ["HTTP", "HTTPS", "SOCKS5", "SOCKS4"]
+		if not url_type in valid_url:
+			print("[-] Invalid url")
+			exit()
+		return url_type
+
 
 class Proxy:
-	def __init__(self, proxy_type=None, user_agent=False):
+	def __init__(self, url=None, proxy_type=None, user_agent=False):
 		self.proxy_type = proxy_type
 		self.user_agent = user_agent
-		self.url = "https://www.proxy-list.download/SOCKS5"
+		self.url = url
 		self.proxy_value = "network.proxy.socks"
 		self.proxy_value_port = "network.proxy.socks_port"
 
@@ -103,7 +122,13 @@ class Proxy:
 		print(f"[*] Connecting to {ip}: {port}")
 		return self.set_proxy_preference(ip, port)
 
+def url_types(url_type):
+	return f"https://www.proxy-list.download/{url_type}"
+
 if __name__ == '__main__':
+	url = Parser().return_url_type()
+	get_url = url_types(url)
+
 	try:
 		Proxy(user_agent=True).user_proxy("108.61.219.140", 1080)
 	except KeyboardInterrupt:
