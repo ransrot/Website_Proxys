@@ -59,16 +59,26 @@ class Proxy:
 		get_content = self.request_url()
 		return get_content, random.choice(list(get_content.keys()))
 
-	def browser_open(self):
-		proxy_dict, proxy_ip = self.get_random_ip()
-		print(f"[*] Connected to : {proxy_ip} : {proxy_dict[proxy_ip][2]}")
+	def set_proxy_preference(self, proxy_ip_type, proxy_port_type, proxy_ip, proxy_port):
+		print("[*] Opening browser")
 		fp = webdriver.FirefoxProfile()
 		fp.set_preference("network.proxy.type", 1)
-		fp.set_preference("network.proxy.socks", proxy_ip)
-		fp.set_preference("network.proxy.socks_port", int(proxy_dict[proxy_ip][0]))
+		fp.set_preference(proxy_ip_type, proxy_ip)
+		fp.set_preference(proxy_port_type, int(proxy_port))
 		fp.update_preferences()
+		return webdriver.Firefox(firefox_profile=fp, executable_path="/usr/local/share/WebDriverManager/gecko/v0.26.0/geckodriver-v0.26.0-linux64/geckodriver")
 
-		driver = webdriver.Firefox(firefox_profile=fp, executable_path="/usr/local/share/WebDriverManager/gecko/v0.26.0/geckodriver-v0.26.0-linux64/geckodriver")
+	def browser_open(self, proxy_type=None):  # defaults to SOCKS proxy
+		PROXY_TYPE = proxy_type
+		proxy_value = "network.proxy.socks"
+		proxy_value_port = "network.proxy.socks_port"
+		proxy_dict, proxy_ip = self.get_random_ip()
+		print(f"[*] Connected to : {proxy_ip} : {proxy_dict[proxy_ip][2]}")
+
+		fp = webdriver.FirefoxProfile()
+
+		if not PROXY_TYPE:
+			self.set_proxy_preference(proxy_value, proxy_value_port, proxy_ip, int(proxy_dict[proxy_ip][0]))
 
 if __name__ == '__main__':
 	Proxy().browser_open()
